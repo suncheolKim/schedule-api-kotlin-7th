@@ -1,5 +1,8 @@
 package net.sckim.scheduleapi.schedule;
 
-public interface ScheduleService {
+import net.sckim.scheduleapi.schedule.dto.CreateScheduleRequest;
+import net.sckim.scheduleapi.schedule.dto.ScheduleResponse;
 
+public interface ScheduleService {
+    ScheduleResponse create(CreateScheduleRequest request);
 }
