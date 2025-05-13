@@ -2,13 +2,19 @@ package net.sckim.scheduleapi.schedule;
 
 import net.sckim.scheduleapi.schedule.entity.Schedule;
 import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.jdbc.core.RowMapper;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.jdbc.core.simple.SimpleJdbcInsert;
 import org.springframework.stereotype.Repository;
 
 import javax.sql.DataSource;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.time.LocalDateTime;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 @Repository
 public class ScheduleRepositoryImpl implements ScheduleRepository {
@@ -35,5 +41,31 @@ public class ScheduleRepositoryImpl implements ScheduleRepository {
         schedule.setId(number.longValue());
 
         return schedule;
+    }
+
+    @Override
+    public Optional<Schedule> findById(Long scheduleId) {
+        final List<Schedule> results = jdbcTemplate.query("select * from schedule where id = ?", scheduleRowMapper(), scheduleId);
+
+        return results.stream().findAny();
+    }
+
+    private RowMapper<Schedule> scheduleRowMapper() {
+        return new RowMapper<>() {
+            @Override
+            public Schedule mapRow(ResultSet rs, int rowNum) throws SQLException {
+                final Schedule schedule = new Schedule(
+                        rs.getString("contents"),
+                        rs.getString("name"),
+                        rs.getString("password"),
+                        rs.getObject("created_at", LocalDateTime.class),
+                        rs.getObject("updated_at", LocalDateTime.class)
+                );
+
+                schedule.setId(rs.getLong("id"));
+
+                return schedule;
+            }
+        };
     }
 }

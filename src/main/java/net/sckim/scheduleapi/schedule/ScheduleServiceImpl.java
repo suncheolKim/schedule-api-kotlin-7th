@@ -24,4 +24,12 @@ public class ScheduleServiceImpl implements ScheduleService {
 
         return new ScheduleResponse(newSchedule);
     }
+
+    @Override
+    public ScheduleResponse getSchedule(Long scheduleId) {
+        final Schedule schedule = scheduleRepository.findById(scheduleId)
+                .orElseThrow();
+
+        return new ScheduleResponse(schedule);
+    }
 }
