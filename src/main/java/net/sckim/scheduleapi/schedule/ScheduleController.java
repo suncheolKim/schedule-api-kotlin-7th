@@ -1,5 +1,7 @@
 package net.sckim.scheduleapi.schedule;
 
+import net.sckim.scheduleapi.exception.EntityNotFoundException;
+import net.sckim.scheduleapi.exception.PasswordMismatchedException;
 import net.sckim.scheduleapi.schedule.dto.DeleteScheduleRequest;
 import net.sckim.scheduleapi.schedule.dto.EditScheduleRequest;
 import net.sckim.scheduleapi.schedule.dto.ScheduleResponse;
@@ -8,6 +10,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -63,5 +66,12 @@ public class ScheduleController {
     public ResponseEntity<Void> deleteSchedule(@PathVariable Long scheduleId, @RequestBody DeleteScheduleRequest deleteRequest) {
         scheduleService.deleteSchedule(scheduleId, deleteRequest);
         return new ResponseEntity<>(HttpStatus.OK);
+    }
+
+
+    // FIXME : 리팩토링 필요 - 각 예외를 적절한 HttpStatus 코드 반환하도록 변경
+    @ExceptionHandler(value = {PasswordMismatchedException.class, EntityNotFoundException.class})
+    public ResponseEntity<String> handleException(Exception e) {
+        return new ResponseEntity<>(e.getMessage(), HttpStatus.BAD_REQUEST);
     }
 }
