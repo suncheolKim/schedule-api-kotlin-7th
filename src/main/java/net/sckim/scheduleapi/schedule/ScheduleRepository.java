@@ -17,4 +17,8 @@ public interface ScheduleRepository {
     int update(Schedule schedule);
 
     int deleteById(Long scheduleId);
+
+    List<Schedule> findPageBy(LocalDate updatedDate, Long userId, Integer page, Integer size);
+
+    long countAllBy(LocalDate updatedDate, Long userId);
 }

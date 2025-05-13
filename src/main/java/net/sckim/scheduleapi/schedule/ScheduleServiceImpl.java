@@ -7,6 +7,9 @@ import net.sckim.scheduleapi.schedule.dto.ScheduleResponse;
 import net.sckim.scheduleapi.schedule.entity.Schedule;
 import net.sckim.scheduleapi.user.UserRepository;
 import net.sckim.scheduleapi.user.entity.User;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
@@ -62,6 +65,24 @@ public class ScheduleServiceImpl implements ScheduleService {
         }
 
         return list;
+    }
+
+    @Override
+    public Page<ScheduleResponse> getSchedulePage(LocalDate updatedDate, Long userId, Integer page, Integer size) {
+        final List<Schedule> scheduleList = scheduleRepository.findPageBy(updatedDate, userId, page, size);
+        final long totalCount = scheduleRepository.countAllBy(updatedDate, userId);
+
+        User user;
+        final List<ScheduleResponse> responseResult = new ArrayList<>();
+        for (Schedule newSchedule : scheduleList) {
+            user = userRepository.findById(newSchedule.getUserId())
+                    .orElseThrow();
+            ScheduleResponse scheduleResponse = new ScheduleResponse(newSchedule, user);
+            responseResult.add(scheduleResponse);
+        }
+
+        // PageImpl의 내부 페이지 시작 번호는 0번부터 시작한다. 외부에서 요청할 때 시작 페이지가 1이므로 -1을 해줘야 한다.
+        return new PageImpl<>(responseResult, PageRequest.of(page - 1, size), totalCount);
     }
 
     @Override

@@ -4,6 +4,7 @@ import net.sckim.scheduleapi.schedule.dto.DeleteScheduleRequest;
 import net.sckim.scheduleapi.schedule.dto.EditScheduleRequest;
 import net.sckim.scheduleapi.schedule.dto.ScheduleResponse;
 import net.sckim.scheduleapi.schedule.dto.CreateScheduleRequest;
+import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -42,6 +43,14 @@ public class ScheduleController {
     public ResponseEntity<List<ScheduleResponse>> getScheduleList(@RequestParam(required = false) LocalDate updatedDate,
                                                                   @RequestParam(required = false) Long userId) {
         return new ResponseEntity<>(scheduleService.getScheduleList(updatedDate, userId), HttpStatus.OK);
+    }
+
+    @GetMapping("/schedules/pages")
+    public ResponseEntity<Page<ScheduleResponse>> getScheduleList(@RequestParam(required = false) LocalDate updatedDate,
+                                                                  @RequestParam(required = false) Long userId,
+                                                                  @RequestParam(required = false, defaultValue = "1") Integer page,
+                                                                  @RequestParam(required = false, defaultValue = "10") Integer size) {
+        return new ResponseEntity<>(scheduleService.getSchedulePage(updatedDate, userId, page, size), HttpStatus.OK);
     }
 
     @PutMapping("/schedules/{scheduleId}")
