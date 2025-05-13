@@ -1,5 +1,6 @@
 package net.sckim.scheduleapi.schedule;
 
+import jakarta.validation.Valid;
 import net.sckim.scheduleapi.exception.EntityNotFoundException;
 import net.sckim.scheduleapi.exception.PasswordMismatchedException;
 import net.sckim.scheduleapi.schedule.dto.DeleteScheduleRequest;
@@ -9,6 +10,7 @@ import net.sckim.scheduleapi.schedule.dto.CreateScheduleRequest;
 import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -22,6 +24,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import java.time.LocalDate;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/api")
@@ -33,7 +36,7 @@ public class ScheduleController {
     }
 
     @PostMapping("/schedules")
-    public ScheduleResponse schedule(@RequestBody CreateScheduleRequest createRequest) {
+    public ScheduleResponse schedule(@Valid @RequestBody CreateScheduleRequest createRequest) {
         return scheduleService.create(createRequest);
     }
 
@@ -57,13 +60,13 @@ public class ScheduleController {
     }
 
     @PutMapping("/schedules/{scheduleId}")
-    public ResponseEntity<ScheduleResponse> editSchedule(@PathVariable Long scheduleId, @RequestBody EditScheduleRequest editRequest) {
+    public ResponseEntity<ScheduleResponse> editSchedule(@PathVariable Long scheduleId, @Valid @RequestBody EditScheduleRequest editRequest) {
         final ScheduleResponse editedSchedule = scheduleService.editSchedule(scheduleId, editRequest);
         return new ResponseEntity<>(editedSchedule, HttpStatus.OK);
     }
 
     @DeleteMapping("/schedules/{scheduleId}")
-    public ResponseEntity<Void> deleteSchedule(@PathVariable Long scheduleId, @RequestBody DeleteScheduleRequest deleteRequest) {
+    public ResponseEntity<Void> deleteSchedule(@PathVariable Long scheduleId, @Valid @RequestBody DeleteScheduleRequest deleteRequest) {
         scheduleService.deleteSchedule(scheduleId, deleteRequest);
         return new ResponseEntity<>(HttpStatus.OK);
     }
@@ -73,5 +76,15 @@ public class ScheduleController {
     @ExceptionHandler(value = {PasswordMismatchedException.class, EntityNotFoundException.class})
     public ResponseEntity<String> handleException(Exception e) {
         return new ResponseEntity<>(e.getMessage(), HttpStatus.BAD_REQUEST);
+    }
+
+    @ExceptionHandler(value = MethodArgumentNotValidException.class)
+    public ResponseEntity<String> handleMethodArgumentNotValidException(MethodArgumentNotValidException e) {
+        String errorMessage = e.getBindingResult().getFieldErrors()
+                .stream()
+                .map(fieldError -> "[" + fieldError.getField() + "] " + fieldError.getDefaultMessage() )
+                .collect(Collectors.joining("\n"));
+
+        return new ResponseEntity<>(errorMessage, HttpStatus.BAD_REQUEST);
     }
 }
