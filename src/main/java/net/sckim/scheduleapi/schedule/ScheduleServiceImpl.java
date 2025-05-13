@@ -1,6 +1,7 @@
 package net.sckim.scheduleapi.schedule;
 
 import net.sckim.scheduleapi.schedule.dto.CreateScheduleRequest;
+import net.sckim.scheduleapi.schedule.dto.DeleteScheduleRequest;
 import net.sckim.scheduleapi.schedule.dto.EditScheduleRequest;
 import net.sckim.scheduleapi.schedule.dto.ScheduleResponse;
 import net.sckim.scheduleapi.schedule.entity.Schedule;
@@ -58,5 +59,16 @@ public class ScheduleServiceImpl implements ScheduleService {
         scheduleRepository.update(schedule);
 
         return new ScheduleResponse(schedule);
+    }
+
+    @Override
+    public void deleteSchedule(Long scheduleId, DeleteScheduleRequest deleteRequest) {
+        final Schedule schedule = scheduleRepository.findById(scheduleId).orElseThrow();
+
+        if (!schedule.getPassword().equals(deleteRequest.getPassword())) {
+            throw new IllegalArgumentException("비밀번호가 일치하지 않음");
+        }
+
+        scheduleRepository.deleteById(scheduleId);
     }
 }

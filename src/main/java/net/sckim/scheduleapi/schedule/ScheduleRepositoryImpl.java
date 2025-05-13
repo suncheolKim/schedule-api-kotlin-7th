@@ -107,6 +107,11 @@ public class ScheduleRepositoryImpl implements ScheduleRepository {
                                                         schedule.getContents(), schedule.getName(), schedule.getId());
     }
 
+    @Override
+    public int deleteById(Long scheduleId) {
+        return jdbcTemplate.update("DELETE FROM schedule WHERE id = ?", scheduleId);
+    }
+
     private RowMapper<Schedule> scheduleRowMapper() {
         return new RowMapper<>() {
             @Override

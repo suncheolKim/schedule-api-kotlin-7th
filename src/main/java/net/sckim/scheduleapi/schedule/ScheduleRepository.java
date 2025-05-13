@@ -15,4 +15,6 @@ public interface ScheduleRepository {
     List<Schedule> findAllBy(LocalDate updatedDate, String writer);
 
     int update(Schedule schedule);
+
+    int deleteById(Long scheduleId);
 }

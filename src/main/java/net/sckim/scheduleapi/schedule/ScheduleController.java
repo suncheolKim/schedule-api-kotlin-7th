@@ -1,10 +1,12 @@
 package net.sckim.scheduleapi.schedule;
 
+import net.sckim.scheduleapi.schedule.dto.DeleteScheduleRequest;
 import net.sckim.scheduleapi.schedule.dto.EditScheduleRequest;
 import net.sckim.scheduleapi.schedule.dto.ScheduleResponse;
 import net.sckim.scheduleapi.schedule.dto.CreateScheduleRequest;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -46,5 +48,11 @@ public class ScheduleController {
     public ResponseEntity<ScheduleResponse> editSchedule(@PathVariable Long scheduleId, @RequestBody EditScheduleRequest editRequest) {
         final ScheduleResponse editedSchedule = scheduleService.editSchedule(scheduleId, editRequest);
         return new ResponseEntity<>(editedSchedule, HttpStatus.OK);
+    }
+
+    @DeleteMapping("/schedules/{scheduleId}")
+    public ResponseEntity<Void> deleteSchedule(@PathVariable Long scheduleId, @RequestBody DeleteScheduleRequest deleteRequest) {
+        scheduleService.deleteSchedule(scheduleId, deleteRequest);
+        return new ResponseEntity<>(HttpStatus.OK);
     }
 }
