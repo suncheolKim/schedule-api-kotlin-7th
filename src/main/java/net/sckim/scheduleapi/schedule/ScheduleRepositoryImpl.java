@@ -101,6 +101,12 @@ public class ScheduleRepositoryImpl implements ScheduleRepository {
         return namedParameterJdbcTemplate.query(qry.toString(), params, scheduleRowMapper());
     }
 
+    @Override
+    public int update(Schedule schedule) {
+        return jdbcTemplate.update("UPDATE schedule set contents = ?, name = ?, updated_at = NOW() WHERE id = ?",
+                                                        schedule.getContents(), schedule.getName(), schedule.getId());
+    }
+
     private RowMapper<Schedule> scheduleRowMapper() {
         return new RowMapper<>() {
             @Override

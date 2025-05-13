@@ -1,6 +1,7 @@
 package net.sckim.scheduleapi.schedule;
 
 import net.sckim.scheduleapi.schedule.dto.CreateScheduleRequest;
+import net.sckim.scheduleapi.schedule.dto.EditScheduleRequest;
 import net.sckim.scheduleapi.schedule.dto.ScheduleResponse;
 import net.sckim.scheduleapi.schedule.entity.Schedule;
 import org.springframework.stereotype.Service;
@@ -42,5 +43,20 @@ public class ScheduleServiceImpl implements ScheduleService {
         return scheduleList.stream()
                 .map(ScheduleResponse::new)
                 .toList();
+    }
+
+    @Override
+    public ScheduleResponse editSchedule(Long scheduleId, EditScheduleRequest editRequest) {
+        final Schedule schedule = scheduleRepository.findById(scheduleId).orElseThrow();
+
+        if (!schedule.getPassword().equals(editRequest.getPassword())) {
+            throw new IllegalArgumentException("비밀번호가 일치하지 않음");
+        }
+
+        schedule.edit(editRequest);
+
+        scheduleRepository.update(schedule);
+
+        return new ScheduleResponse(schedule);
     }
 }

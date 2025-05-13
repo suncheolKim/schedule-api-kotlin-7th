@@ -1,6 +1,7 @@
 package net.sckim.scheduleapi.schedule;
 
 import net.sckim.scheduleapi.schedule.dto.CreateScheduleRequest;
+import net.sckim.scheduleapi.schedule.dto.EditScheduleRequest;
 import net.sckim.scheduleapi.schedule.dto.ScheduleResponse;
 
 import java.time.LocalDate;
@@ -12,4 +13,6 @@ public interface ScheduleService {
     ScheduleResponse getSchedule(Long scheduleId);
 
     List<ScheduleResponse> getScheduleList(LocalDate updatedDate, String writer);
+
+    ScheduleResponse editSchedule(Long scheduleId, EditScheduleRequest editRequest);
 }
