@@ -5,7 +5,9 @@ import net.sckim.scheduleapi.schedule.dto.ScheduleResponse;
 import net.sckim.scheduleapi.schedule.entity.Schedule;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Service
 public class ScheduleServiceImpl implements ScheduleService {
@@ -31,5 +33,14 @@ public class ScheduleServiceImpl implements ScheduleService {
                 .orElseThrow();
 
         return new ScheduleResponse(schedule);
+    }
+
+    @Override
+    public List<ScheduleResponse> getScheduleList(LocalDate updatedDate, String writer) {
+        final List<Schedule> scheduleList = scheduleRepository.findAllBy(updatedDate, writer);
+
+        return scheduleList.stream()
+                .map(ScheduleResponse::new)
+                .toList();
     }
 }

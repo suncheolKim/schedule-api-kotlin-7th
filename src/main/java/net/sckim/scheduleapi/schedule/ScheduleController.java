@@ -9,7 +9,11 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+
+import java.time.LocalDate;
+import java.util.List;
 
 @RestController
 @RequestMapping("/api")
@@ -28,5 +32,11 @@ public class ScheduleController {
     @GetMapping("/schedules/{scheduleId}")
     public ResponseEntity<ScheduleResponse> getSchedule(@PathVariable Long scheduleId) {
         return new ResponseEntity<>(scheduleService.getSchedule(scheduleId), HttpStatus.OK);
+    }
+
+    @GetMapping("/schedules")
+    public ResponseEntity<List<ScheduleResponse>> getScheduleList(@RequestParam(required = false) LocalDate updatedDate,
+                                                                  @RequestParam(required = false) String writer) {
+        return new ResponseEntity<>(scheduleService.getScheduleList(updatedDate, writer), HttpStatus.OK);
     }
 }
