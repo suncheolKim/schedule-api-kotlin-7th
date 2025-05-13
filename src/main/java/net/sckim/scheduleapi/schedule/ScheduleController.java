@@ -40,8 +40,8 @@ public class ScheduleController {
 
     @GetMapping("/schedules")
     public ResponseEntity<List<ScheduleResponse>> getScheduleList(@RequestParam(required = false) LocalDate updatedDate,
-                                                                  @RequestParam(required = false) String writer) {
-        return new ResponseEntity<>(scheduleService.getScheduleList(updatedDate, writer), HttpStatus.OK);
+                                                                  @RequestParam(required = false) Long userId) {
+        return new ResponseEntity<>(scheduleService.getScheduleList(updatedDate, userId), HttpStatus.OK);
     }
 
     @PutMapping("/schedules/{scheduleId}")

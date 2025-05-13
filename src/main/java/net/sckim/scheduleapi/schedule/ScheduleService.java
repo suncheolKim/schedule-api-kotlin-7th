@@ -13,7 +13,7 @@ public interface ScheduleService {
 
     ScheduleResponse getSchedule(Long scheduleId);
 
-    List<ScheduleResponse> getScheduleList(LocalDate updatedDate, String writer);
+    List<ScheduleResponse> getScheduleList(LocalDate updatedDate, Long userId);
 
     ScheduleResponse editSchedule(Long scheduleId, EditScheduleRequest editRequest);
 

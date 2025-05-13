@@ -38,7 +38,7 @@ public class ScheduleRepositoryImpl implements ScheduleRepository {
         jdbcInsert.withCatalogName("sparta").withTableName("schedule").usingGeneratedKeyColumns("id");
 
         final Map<String, Object> parameters = new HashMap<>();
-        parameters.put("name", schedule.getName());
+        parameters.put("userId", schedule.getUserId());
         parameters.put("contents", schedule.getContents());
         parameters.put("password", schedule.getPassword());
         parameters.put("created_at", schedule.getCreatedAt());
@@ -61,11 +61,11 @@ public class ScheduleRepositoryImpl implements ScheduleRepository {
     /**
      * 일정 다건 조회
      * @param updatedDate 수정일
-     * @param writer 작성자
+     * @param userId      작성자 ID
      * @return 일정 리스트
      */
     @Override
-    public List<Schedule> findAllBy(LocalDate updatedDate, String writer) {
+    public List<Schedule> findAllBy(LocalDate updatedDate, Long userId) {
         // 조회 조건 처리
         final List<String> conditions = new ArrayList<>();
         final Map<String, Object> params = new HashMap<>();
@@ -77,20 +77,21 @@ public class ScheduleRepositoryImpl implements ScheduleRepository {
             final LocalDateTime start = LocalDateTime.of(updatedDate, LocalTime.of(0, 0, 0, 0));
             final LocalDateTime end = LocalDateTime.of(updatedDate.plusDays(1), LocalTime.of(0, 0, 0, 0));
 
-            conditions.add("updated_at >= :start");
-            conditions.add("updated_at < :end");
+            conditions.add("s.updated_at >= :start");
+            conditions.add("s.updated_at < :end");
             params.put("start", start);
             params.put("end", end);
         }
 
-        if (writer != null) {
-            conditions.add("name = :writer");
-            params.put("writer", writer);
+        if (userId != null) {
+            conditions.add("s.user_id = :userId");
+            params.put("userId", userId);
         }
         // end
 
         // 쿼리 문자열 생성
-        final StringBuilder qry = new StringBuilder("SELECT * FROM schedule");
+        final StringBuilder qry = new StringBuilder("SELECT * FROM schedule s" +
+                "                                             JOIN user u ON s.user_id = u.id");
 
         if (!conditions.isEmpty()) {
             final String conditionString = String.join(" AND ", conditions);
@@ -103,8 +104,8 @@ public class ScheduleRepositoryImpl implements ScheduleRepository {
 
     @Override
     public int update(Schedule schedule) {
-        return jdbcTemplate.update("UPDATE schedule set contents = ?, name = ?, updated_at = NOW() WHERE id = ?",
-                                                        schedule.getContents(), schedule.getName(), schedule.getId());
+        return jdbcTemplate.update("UPDATE schedule set contents = ?, updated_at = NOW() WHERE id = ?",
+                                                        schedule.getContents(), schedule.getId());
     }
 
     @Override
@@ -117,8 +118,8 @@ public class ScheduleRepositoryImpl implements ScheduleRepository {
             @Override
             public Schedule mapRow(ResultSet rs, int rowNum) throws SQLException {
                 final Schedule schedule = new Schedule(
+                        rs.getLong("user_id"),
                         rs.getString("contents"),
-                        rs.getString("name"),
                         rs.getString("password"),
                         rs.getObject("created_at", LocalDateTime.class),
                         rs.getObject("updated_at", LocalDateTime.class)
