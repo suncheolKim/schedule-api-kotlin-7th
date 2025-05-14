@@ -1,0 +1,42 @@
+POST http://localhost:8080/api/schedules
+Content-Type: application/json
+
+{
+  "userId": 1,
+  "contents": "안할말 안하기",
+  "password": "1234"
+}
+
+###
+GET http://localhost:8080/api/schedules/{{scheduleId}}
+Accept: application/json
+
+###
+GET http://localhost:8080/api/schedules
+Accept: application/json
+
+###
+@page =2
+@size =3
+GET http://localhost:8080/api/schedules/pages?updatedDate={{updateDate}}&userId={{userId}}&page={{page}}&size={{size}}
+Accept: application/json
+
+###
+PUT http://localhost:8080/api/schedules/{{scheduleId}}
+Content-Type: application/json
+
+{
+  "name": "김순촬",
+  "contents": "안할말 안하기",
+  "password": "1234"
+}
+
+###
+DELETE http://localhost:8080/api/schedules/{{scheduleId}}
+Content-Type: application/json
+
+{
+  "password": "1234"
+}
+
+###
