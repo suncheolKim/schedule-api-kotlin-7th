@@ -35,4 +35,4 @@ java -jar ./build/libs/schedule-api-0.0.1-SNAPSHOT.jar
 ```
 
 ## API 명세서
-- 추후 링크 제공 예정 
+- https://teamsparta.notion.site/Spring-7-CH-3-1f32dc3ef51480f5aaaff086c3aaa079
