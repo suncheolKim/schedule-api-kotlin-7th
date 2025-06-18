@@ -66,9 +66,62 @@ public class ScheduleRepositoryImpl implements ScheduleRepository {
      */
     @Override
     public List<Schedule> findAllBy(LocalDate updatedDate, Long userId) {
+        final Map<String, Object> params = new HashMap<>();
+        final String qry = generateQueryOfSelectAll(updatedDate, userId, params);
+
+        return namedParameterJdbcTemplate.query(qry, params, scheduleRowMapper());
+    }
+
+    @Override
+    public int update(Schedule schedule) {
+        return jdbcTemplate.update("UPDATE schedule set contents = ?, updated_at = NOW() WHERE id = ?",
+                                                        schedule.getContents(), schedule.getId());
+    }
+
+    @Override
+    public int deleteById(Long scheduleId) {
+        return jdbcTemplate.update("DELETE FROM schedule WHERE id = ?", scheduleId);
+    }
+
+    /**
+     * 페이징 조회
+     * @param updatedDate 수정일
+     * @param userId 사용자 ID
+     * @param page 페이지 번호 (디폴트 1)
+     * @param size 사이즈 (디폴트 10)
+     * @return 페이지에 해당하는 일정 리스트
+     */
+    @Override
+    public List<Schedule> findPageBy(LocalDate updatedDate, Long userId, Integer page, Integer size) {
+        final Map<String, Object> params = new HashMap<>();
+        final String qry = generateQueryOfSelectAll(updatedDate, userId, page, size, params);
+
+        return namedParameterJdbcTemplate.query(qry, params, scheduleRowMapper());
+    }
+
+    @Override
+    public long countAllBy(LocalDate updatedDate, Long userId) {
+        final List<Schedule> scheduleList = findAllBy(updatedDate, userId);
+        return scheduleList.size();
+    }
+
+    private String generateQueryOfSelectAll(LocalDate updatedDate, Long userId, Integer page, Integer size, Map<String, Object> params) {
+        final String qry = generateQueryOfSelectAll(updatedDate, userId, params);
+
+        if (page == null && size == null) {
+            page = 1;
+        }
+        if (size == null) {
+            size = 10;
+        }
+
+        final int offset = (page - 1) * size;
+        return qry + " LIMIT " + size + " OFFSET " + offset;
+    }
+
+    private String generateQueryOfSelectAll(LocalDate updatedDate, Long userId, Map<String, Object> params) {
         // 조회 조건 처리
         final List<String> conditions = new ArrayList<>();
-        final Map<String, Object> params = new HashMap<>();
 
         if (updatedDate != null) {
             // 예) updatedDate가 2025-05-01 이라면
@@ -99,18 +152,7 @@ public class ScheduleRepositoryImpl implements ScheduleRepository {
         }
         // end
 
-        return namedParameterJdbcTemplate.query(qry.toString(), params, scheduleRowMapper());
-    }
-
-    @Override
-    public int update(Schedule schedule) {
-        return jdbcTemplate.update("UPDATE schedule set contents = ?, updated_at = NOW() WHERE id = ?",
-                                                        schedule.getContents(), schedule.getId());
-    }
-
-    @Override
-    public int deleteById(Long scheduleId) {
-        return jdbcTemplate.update("DELETE FROM schedule WHERE id = ?", scheduleId);
+        return qry.toString();
     }
 
     private RowMapper<Schedule> scheduleRowMapper() {
